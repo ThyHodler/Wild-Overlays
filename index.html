@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WILD Overlays - Generador de Prompts OBS Studio & StreamElements</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        pre, code, textarea, input[type="text"], input[type="color"] { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .color-swatch { width: 28px; height: 28px; border-radius: 8px; border: 2px solid #1e293b; transition: transform .15s, border-color .15s; }
+        .color-swatch:hover { transform: scale(1.1); border-color: #6366f1; }
+        .color-swatch.selected { border-color: #a855f7; box-shadow: 0 0 0 2px #0f172a, 0 0 0 4px #a855f7; }
+        .preset-btn { transition: all .15s; }
+        .preset-btn.selected { background: linear-gradient(135deg, #7c3aed, #5b21b6); border-color: #a855f7; color: white; }
+        .preset-btn.selected .check { display: inline-flex; }
+        .check { display: none; }
+        .hex-input { -webkit-text-security: none; }
+        /* ===== TOOLTIP HOVER (accesible, solo CSS) ===== */
+.tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: help;
+}
+.tooltip-wrap .tooltip-trigger {
+  /* el icono de interrogación */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  color: #a78bfa;
+  font-size: 10px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.tooltip-wrap:hover .tooltip-trigger,
+.tooltip-wrap:focus-within .tooltip-trigger {
+  background: rgba(139, 92, 246, 0.3);
+  border-color: #8b5cf6;
+  color: #ddd6fe;
+}
+.tooltip-wrap .tooltip-content {
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  width: max-content;
+  max-width: 320px;
+  padding: 0.65rem 0.8rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px -5px rgba(0,0,0,0.5), 0 0 0 1px rgba(139,92,246,0.15);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 50;
+  transition: opacity .12s ease, visibility .12s, transform .12s ease;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #e2e8f0;
+  white-space: pre-wrap;       /* respeta saltos de línea */
+  word-break: break-word;
+}
+.tooltip-wrap .tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #0f172a transparent transparent transparent;
+}
+.tooltip-wrap:hover .tooltip-content,
+.tooltip-wrap:focus-within .tooltip-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+/* Flecha que coincide con el borde */
+.tooltip-wrap .tooltip-content::before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 7px;
+  border-style: solid;
+  border-color: #334155 transparent transparent transparent;
+}
+/* Reducir movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .tooltip-wrap .tooltip-content { transition: none; }
+}
+/* Oscuro/forzado - ya cubierto por tu tema */
+
+/* ===== GUÍA DE ESCENAS (footer de main) ===== */
+.scenes-guide {
+  border-top: 1px solid #1e293b;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+}
+.scenes-guide h3 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #a855f7;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.scenes-guide h3 i { width: 1rem; height: 1rem; }
+.scenes-guide .group { margin-bottom: 1.5rem; }
+.scenes-guide .group-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #1e293b;
+}
+.scene-item { margin-bottom: 0.75rem; padding-left: 1rem; border-left: 2px solid #1e293b; }
+.scene-item:last-child { margin-bottom: 0; }
+.scene-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 0.25rem;
+}
+.scene-desc {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+@media (max-width: 640px) {
+  .scene-desc { font-size: 0.68rem; }
+}
+
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-purple-500 selection:text-white">
+
+<!-- HEADER -->
+<header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <div class="p-2.5 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl shadow-lg shadow-purple-500/20 text-white">
+                <i data-lucide="wand-2" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                    Generador de Prompts Premium
+                </h1>
+                <p class="text-xs text-purple-400 font-medium"> WILD Overlays · Recursos OBS Studio & StreamElements</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="resetForm()" class="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all flex items-center gap-1.5 border border-slate-700/50">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                Reiniciar Campos
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+        <!-- LEFT COLUMN: CONTROLES -->
+        <div class="lg:col-span-5 space-y-6">
+
+            <!-- SECCIÓN 1: PARÁMETROS DEL RECURSO -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+                <div class="border-b border-slate-800 pb-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-5 h-5 text-purple-400"></i>
+                        Parámetros del Recurso
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Configura los 5 campos clave para generar tu prompt maestro.</p>
+                </div>
+
+                <!-- CAMPO 1: TIPO DE RECURSO -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-purple-300">1. Tipo de Recurso</label>
+                    <select id="tipoRecursoSelect" onchange="handleSelectChange('tipoRecurso')" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="Pantalla &quot;Iniciando el Directo&quot;">Pantalla "Iniciando el Directo"</option>
+                        <option value="Pantalla &quot;Volvemos Pronto&quot;">Pantalla "Volvemos Pronto"</option>
+                        <option value="Pantalla &quot;Stream Finalizado&quot;">Pantalla "Stream Finalizado"</option>
+                        <option value="Alerta de nuevo seguidor">Alerta de nuevo seguidor</option>
+                        <option value="Alerta de nuevo suscriptor">Alerta de nuevo suscriptor</option>
+                        <option value="Alerta de donación">Alerta de donación</option>
+                        <option value="Alerta de raid">Alerta de raid</option>
+                        <option value="Alerta de miembro">Alerta de miembro</option>
+                        <option value="Alerta de bits">Alerta de bits</option>
+                        <option value="Widget de chat">Widget de chat</option>
+                        <option value="Marco de webcam">Marco de webcam</option>
+                        <option value="Barra de progreso">Barra de progreso</option>
+                        <option value="Overlay de Gameplay">Overlay de Gameplay</option>
+                        <option value="Overlay de Just Chatting">Overlay de Just Chatting</option>
+                        <option value="custom">✏️ Campo Personalizado...</option>
+                    </select>
+                    <input type="text" id="tipoRecursoCustom" oninput="updatePrompt()" placeholder="Escribe tu tipo de recurso..." class="hidden w-full bg-slate-950 border border-purple-500/50 rounded-xl px-3.5 py-2 text-sm text-purple-200 mt-2 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                </div>
+
+                <!-- CAMPO 2: ESTILO VISUAL -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-purple-300">2. Estilo Visual</label>
+                    <select id="estiloVisualSelect" onchange="handleSelectChange('estiloVisual')" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="Cyberpunk">Cyberpunk</option>
+                        <option value="Futurista">Futurista</option>
+                        <option value="Sci-Fi">Sci-Fi</option>
+                        <option value="Minimalista">Minimalista</option>
+                        <option value="Esports">Esports</option>
+                        <option value="Fantasía">Pixel Art</option>
+                        <option value="Anime">Pixel Art</option>
+                        <option value="Neon">Neon</option>
+                        <option value="Retro Gaming">Retro Gaming</option>
+                        <option value="Glassmorphism">Glassmorphism</option>
+                        <option value="Pixel Art">Pixel Art</option>
+                        <option value="custom">✏️ Campo Personalizado...</option>
+                    </select>
+                    <input type="text" id="estiloVisualCustom" oninput="updatePrompt()" placeholder="Escribe tu estilo visual..." class="hidden w-full bg-slate-950 border border-purple-500/50 rounded-xl px-3.5 py-2 text-sm text-purple-200 mt-2 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                </div>
+
+                <!-- CAMPO 3: DESCRIPCIÓN DEL RECURSO -->
+                <div class="space-y-2">
+                   <label class="text-xs font-semibold uppercase tracking-wider text-purple-300 tooltip-wrap">
+  3. Descripción del Recurso
+  <span class="tooltip-trigger" aria-label="Ayuda" title="">
+    <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+  </span>
+  <span class="tooltip-content">
+Qué debe mostrar.
+Qué texto debe contener.
+Qué información debe aparecer.
+Qué elementos visuales debe tener.
+Qué debe suceder cuando se activa.
+Cómo debe aparecer.
+Cómo debe desaparecer.
+Cuánto tiempo debe permanecer visible.
+Qué animaciones debe utilizar.
+Qué información debe poder modificarse.
+  </span>
+</label>
+                    <select id="descripcionSelect" onchange="handleSelectChange('descripcion')" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="Describe exactamente lo que debe mostrar, el texto, la información visual, cómo aparece, cómo desaparece, animaciones y tiempo visible.">Descripción Estándar UI/UX Pro</option>
+                        <option value="custom">✏️ Campo Personalizado (Escribir detalles)...</option>
+                    </select>
+                    <textarea id="descripcionCustom" oninput="updatePrompt()" rows="3" placeholder="Escribe los detalles aquí..." class="hidden w-full bg-slate-950 border border-purple-500/50 rounded-xl p-3 text-xs text-purple-200 mt-2 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-y"></textarea>
+                </div>
+
+                <!-- CAMPO 4: COMPORTAMIENTO -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-purple-300 tooltip-wrap">
+  4. Comportamiento
+  <span class="tooltip-trigger" aria-label="Ayuda" title="">
+    <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+  </span>
+  <span class="tooltip-content">
+Determina si el recurso:
+Debe permanecer visible permanentemente.
+Debe comenzar oculto.
+Debe aparecer mediante una animación.
+Debe desaparecer automáticamente.
+Debe utilizar un temporizador.
+Debe reaccionar a una acción.
+Debe poder activarse mediante JavaScript.
+Debe poder reiniciarse.
+Debe poder utilizarse múltiples veces sin recargar la página.
+  </span>
+</label>
+
+                    <select id="comportamientoSelect" onchange="handleSelectChange('comportamiento')" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="Determina si debe permanecer visible permanentemente, comenzar oculto, aparecer mediante animación, desaparecer automáticamente, usar temporizador o reaccionar a una acción de JavaScript. Si es alerta, debe comenzar oculta mediante CSS con el contenedor dimensionado.">Comportamiento Estándar (Automático/Oculto)</option>
+                        <option value="custom">✏️ Campo Personalizado...</option>
+                    </select>
+                    <textarea id="comportamientoCustom" oninput="updatePrompt()" rows="3" placeholder="Escribe el comportamiento aquí..." class="hidden w-full bg-slate-950 border border-purple-500/50 rounded-xl p-3 text-xs text-purple-200 mt-2 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-y"></textarea>
+                </div>
+
+                <!-- CAMPO 5: PLATAFORMA DE DESTINO -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-purple-300">5. Plataforma de Destino</label>
+                    <select id="plataformaSelect" onchange="handleSelectChange('plataforma')" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="STREAMELEMENTS">STREAMELEMENTS</option>
+                        <option value="STREAMLABS">STREAMLABS</option>
+                        <option value="OBS DIRECTO">OBS</option>
+                        <option value="Meld Studio">Meld Studio</option>
+                        <option value="Streamer.Bot">Streamer.bot</option>
+                        <option value="custom">✏️ Campo Personalizado...</option>
+                    </select>
+                    <input type="text" id="plataformaCustom" oninput="updatePrompt()" placeholder="Especifica la plataforma..." class="hidden w-full bg-slate-950 border border-purple-500/50 rounded-xl px-3.5 py-2 text-sm text-purple-200 mt-2 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: DATOS BÁSICOS DEL STREAMER -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
+                <div class="border-b border-slate-800 pb-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <i data-lucide="user" class="w-5 h-5 text-emerald-400"></i>
+                        Datos Básicos del Streamer
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Información que se inyecta en el prompt para personalizar el recurso.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-medium text-slate-300">Nombre del Streamer / Canal</label>
+                        <input type="text" id="streamerName" oninput="updatePrompt()" placeholder="ej. nicothewild" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-medium text-slate-300">Tagline / Eslogan</label>
+                        <input type="text" id="streamerTagline" oninput="updatePrompt()" placeholder="ej. Código, café y caos controlado" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                    <div class="space-y-1.5 sm:col-span-2">
+                        <label class="text-xs font-medium text-slate-300">Redes Sociales (para widgets que las incluyan)</label>
+                        <input type="text" id="streamerSocials" oninput="updatePrompt()" placeholder="ej. @nicothewild | twitch.tv/nicothewild | discord.gg/xxx" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-medium text-slate-300">Resolución Base</label>
+                        <select id="resolutionSelect" onchange="updatePrompt()" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="1920x1080 (16:9)">1920x1080 (16:9) — Estándar</option>
+                            <option value="2560x1440 (16:9)">2560x1440 (16:9) — 2K</option>
+                            <option value="3840x2160 (16:9)">3840x2160 (16:9) — 4K</option>
+                            <option value="1080x1920 (9:16)">1080x1920 (9:16) — Vertical/Shorts</option>
+                            <option value="custom">✏️ Personalizada...</option>
+                        </select>
+                        <input type="text" id="resolutionCustom" oninput="updatePrompt()" placeholder="ej. 1920x1080" class="hidden w-full bg-slate-950 border border-emerald-500/50 rounded-xl px-3.5 py-2 text-sm text-emerald-200 mt-2 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-medium text-slate-300">Framework / Librería preferida</label>
+                        <select id="frameworkSelect" onchange="updatePrompt()" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="Vanilla JS (sin dependencias)">Vanilla JS (sin dependencias)</option>
+                            <option value="GSAP (animaciones)">GSAP (animaciones)</option>
+                            <option value="Alpine.js (reactividad ligera)">Alpine.js (reactividad ligera)</option>
+                            <option value="Vue 3 (CDN)">Vue 3 (CDN)</option>
+                            <option value="Sin preferencia">Sin preferencia (la IA decide)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: PALETA DE COLORES (NUEVA) -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
+                <div class="border-b border-slate-800 pb-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <i data-lucide="palette" class="w-5 h-5 text-amber-400"></i>
+                        Paleta de Colores
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Define la identidad cromática. Se volcará completa al prompt final.</p>
+                </div>
+
+                <!-- Modo de paleta -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-amber-300">Modo de Paleta</label>
+                    <div class="flex flex-wrap gap-2" id="paletteModeBtns">
+                        <button type="button" class="preset-btn px-3 py-1.5 text-xs font-medium text-slate-300 border border-slate-700 rounded-lg hover:border-amber-500/50" data-mode="preset" onclick="setPaletteMode('preset')">
+                            <i data-lucide="list" class="w-3.5 h-3.5 inline-block mr-1"></i> Preset
+                            <i data-lucide="check" class="check w-3.5 h-3.5 inline-block ml-1"></i>
+                        </button>
+                        <button type="button" class="preset-btn px-3 py-1.5 text-xs font-medium text-slate-300 border border-slate-700 rounded-lg hover:border-amber-500/50" data-mode="keywords" onclick="setPaletteMode('keywords')">
+                            <i data-lucide="tag" class="w-3.5 h-3.5 inline-block mr-1"></i> Palabras clave
+                            <i data-lucide="check" class="check w-3.5 h-3.5 inline-block ml-1"></i>
+                        </button>
+                        <button type="button" class="preset-btn px-3 py-1.5 text-xs font-medium text-slate-300 border border-slate-700 rounded-lg hover:border-amber-500/50" data-mode="custom" onclick="setPaletteMode('custom')">
+                            <i data-lucide="edit-3" class="w-3.5 h-3.5 inline-block mr-1"></i> Personalizada (Hex)
+                            <i data-lucide="check" class="check w-3.5 h-3.5 inline-block ml-1"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" id="paletteMode" value="preset">
+                </div>
+
+                <!-- PRESETS -->
+                <div id="palettePreset" class="space-y-3">
+                    <label class="text-xs font-medium text-slate-300">Presets profesionales</label>
+                    <div class="flex flex-wrap gap-2" id="presetBtns"></div>
+                    <p class="text-[11px] text-slate-500">Selecciona un preset. Los colores se rellenan abajo y se incluyen en el prompt.</p>
+                </div>
+
+                <!-- PALABRAS CLAVE -->
+                <div id="paletteKeywords" class="hidden space-y-3">
+                    <label class="text-xs font-medium text-slate-300">Palabras clave de color (separadas por comas)</label>
+                    <input type="text" id="colorKeywords" oninput="state.colorKeywords=this.value; updatePrompt()" placeholder="ej. neon cyan, magenta glow, deep purple, electric blue" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                    <p class="text-[11px] text-slate-500">Ej: <code class="text-amber-400 bg-slate-900 px-1 rounded">neon cyan, magenta glow, deep purple</code> — la IA interpretará la intención cromática.</p>
+                </div>
+
+                <!-- PERSONALIZADA (HEX) -->
+                <div id="paletteCustom" class="hidden space-y-3">
+                    <label class="text-xs font-medium text-slate-300">Hasta 3 colores Hex (principal, secundario, acento)</label>
+                    <div class="flex flex-wrap items-end gap-3" id="customColorSlots"></div>
+                    <p class="text-[11px] text-slate-500">Haz clic en cada muestra para abrir el selector. El orden define: <strong>Principal → Secundario → Acento</strong>.</p>
+                </div>
+
+                <!-- PREVISUALIZACIÓN DE PALETA ACTUAL -->
+                <div class="pt-2 border-t border-slate-800">
+                    <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                        <span>Paleta activa en el prompt:</span>
+                        <span id="activePalettePreview" class="font-mono text-amber-300">Preset: Cyberpunk Neon</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5" id="activePaletteSwatches"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: SALIDA DEL PROMPT -->
+        <div class="lg:col-span-7 space-y-4 lg:sticky lg:top-24">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col h-[calc(100vh-140px)] min-h-[550px]">
+
+                <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                    <div>
+                        <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i>
+                            Prompt Generado Resultante
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Copia el texto generado a tu asistente de IA.</p>
+                    </div>
+                    <button id="copyBtn" onclick="copyPrompt()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-purple-600/30 active:scale-95 transition-all">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                        <span id="copyBtnText">Copiar Prompt</span>
+                    </button>
+                </div>
+
+                <!-- PROMPT TEXTAREA -->
+                <div class="mt-4 flex-grow relative rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+                    <textarea id="promptResult" readonly class="w-full h-full p-4 bg-slate-950 text-slate-300 text-xs leading-relaxed resize-none focus:outline-none font-mono selection:bg-purple-900 selection:text-purple-100"></textarea>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                        Sistema listo
+                    </span>
+                    <span id="charCount">0 caracteres</span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- GUIA DE ESCENAS -->
+<section class="scenes-guide max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8" aria-label="Guía de tipos de escena">
+  <h3 class="flex items-center gap-2">
+    <i data-lucide="book-open"></i>
+    Guía rápida de tipos de escena
+  </h3>
+
+  <div class="group">
+    <div class="group-title">Escenas Imprescindibles</div>
+
+    <div class="scene-item">
+      <div class="scene-name">Starting Soon / Pre-stream</div>
+      <div class="scene-desc">Objetivo: Mostrar contenido mientras te preparas antes de darle a "Iniciar transmisión".
+Función: Música de espera, logo animado, hora de inicio prevista, redes sociales. Evita que la gente vea tu escritorio desordenado.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">Live / Juego en pantalla</div>
+      <div class="scene-desc">Objetivo: Tu escena principal de contenido.
+Función: Captura del juego + overlay con cámara, chat, alertas, HUD. Es la escena por defecto al estar on-air.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">BRB / Pausa corta</div>
+      <div class="scene-desc">Objetivo: Cubrir ausencias imprevistas de 1 a 5 minutos.
+Función: "Vuelvo en breve", con música loop. Para ir al baño, atender algo urgente.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">Break / Intermedio</div>
+      <div class="scene-desc">Objetivo: Pausas programadas más largas.
+Función: "Regreso en 10 min", cuenta regresiva, highlights. Se usa entre juegos o bloques de contenido.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">Just Chatting / Sin juego</div>
+      <div class="scene-desc">Objetivo: Conversar con la audiencia sin gameplay.
+Función: Cámara grande, fondo, chat visible. Ideal para charlas, Q&A, anuncios.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">Fin de Stream / Goodbye</div>
+      <div class="scene-desc">Objetivo: Cierre profesional.
+Función: Agradecimiento, resumen del stream, redes sociales y próximo horario. Puedes dejarla unos minutos tras detener la transmisión.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">Transición / Stinger</div>
+      <div class="scene-desc">Objetivo: Dar profesionalismo al cambiar de escena.
+Función: Animación corta de 0.5-2s entre escenas. No es una escena fija, pero es imprescindible.</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Escenas Específicas y Avanzadas</div>
+
+    <div class="scene-item">
+      <div class="scene-name">Cambio de Juego / Intermisión</div>
+      <div class="scene-desc">Objetivo: Mantener retención mientras cargas otro juego.
+Función: Pantalla con "Cambiando de juego...", música, y mensajes de chat activado.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">Invitado / Duo Stream</div>
+      <div class="scene-desc">Objetivo: Adaptar el layout cuando hay más de una persona.
+Función: Dos cámaras, dos nombres, más espacio para chat. Variantes: invitado izq/der, cámara grande/pequeña.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">React / Reacción a contenido</div>
+      <div class="scene-desc">Objetivo: Reproducir video externo y reaccionar.
+Función: Layout con tu cámara en picture-in-picture y ventana de video al 70-80% de pantalla. Perfecto para YouTube, TikTok, clips.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">React con Invitado</div>
+      <div class="scene-desc">Objetivo: Reacción en conjunto.
+Función: Similar a React pero con 2 cámaras + video. Se suele usar cámara pequeña para cada uno y video grande centrado.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">Screen Share / Presentación</div>
+      <div class="scene-desc">Objetivo: Mostrar pantalla para tutoriales, Discord, diseño, etc.
+Función: Captura de pantalla limpia sin juego, con cámara pequeña y anotaciones.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">Cámara Off / Audio Only</div>
+      <div class="scene-desc">Objetivo: Seguir el stream sin mostrarte.
+Función: Solo juego + overlay + mensaje "Cámara apagada por X motivo". Útil por privacidad o problemas de luz.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">Technical Difficulties</div>
+      <div class="scene-desc">Objetivo: Problemas técnicos graves.
+Función: Pantalla estática con "Problemas técnicos, regresamos pronto". Evita que se vea el BSOD o el escritorio.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">Giveaway / Sorteo y Polls</div>
+      <div class="scene-desc">Objetivo: Interacción activa con la comunidad.
+Función: Diseño limpio con espacio para leer nombres, overlay de Streamlabs, y contador.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">Cámara Principal / IRL</div>
+      <div class="scene-desc">Objetivo: Streams sin PC, solo charla.
+Función: Cámara grande, fondo, micrófono destacado. Ideal para Just Chatting IRL.</div>
+    </div>
+
+    <div class="scene-item">
+      <div class="scene-name">Espera de Invitado</div>
+      <div class="scene-desc">Objetivo: Mientras el invitado se conecta.
+Función: Similar a Starting Soon pero con texto "Esperando a [Nombre]...".</div>
+    </div>
+  </div>
+</section>
+
+
+</main>
+
+<!-- FOOTER -->
+<footer class="border-t border-slate-900 bg-slate-950/90 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <p>© Generador de Prompts OBS & StreamElements —  Wild Overlays</p>
+        <p class="font-medium text-slate-400 bg-slate-900 border border-slate-800/80 px-3 py-1 rounded-full">
+            Creado por <a href="https://www.instagram.com/nicothewildtv/" target="_blank" rel="noopener noreferrer" class="text-purple-400 font-semibold hover:underline">Nicothewild</a>
+        </p>
+    </div>
+</footer>
+
+<!-- JAVASCRIPT -->
+<script>
+    // ===== DATOS DE PRESETS DE COLORES =====
+    const COLOR_PRESETS = {
+        "Cyberpunk Neon": ["#00ffff", "#ff00ff", "#ffcc00"],
+        "Synthwave Sunset": ["#ff006e", "#8338ec", "#3a86ff"],
+        "Minimal Mono": ["#ffffff", "#888888", "#000000"],
+        "Esports Pro": ["#00d4ff", "#1a1a2e", "#ff6b35"],
+        "Nature Green": ["#2ecc71", "#27ae60", "#1e8a49"],
+        "Ocean Deep": ["#0077b6", "#00b4d8", "#90e0ef"],
+        "Fire & Ice": ["#ff3366", "#00ffff", "#ffffff"],
+        "Royal Gold": ["#ffd700", "#b8860b", "#1a1a1a"],
+        "Pastel Dream": ["#ffb3d9", "#b3d9ff", "#d9ffb3"],
+        "Retro Arcade": ["#ff6ec7", "#00ff9f", "#ffcc00"],
+        "Dark Matter": ["#0d0d0d", "#1a1a2e", "#16213e"],
+        "Aurora Boreal": ["#00ff87", "#60efff", "#bc8cff"],
+        "Custom (vacío)": ["", "", ""]
+    };
+
+    const PRESET_ORDER = [
+        "Cyberpunk Neon", "Synthwave Sunset", "Minimal Mono", "Esports Pro",
+        "Nature Green", "Ocean Deep", "Fire & Ice", "Royal Gold",
+        "Pastel Dream", "Retro Arcade", "Dark Matter", "Aurora Boreal",
+        "Custom (vacío)"
+    ];
+
+    // ===== ESTADO =====
+    let state = {
+        paletteMode: 'preset',
+        selectedPreset: 'Cyberpunk Neon',
+        colorKeywords: '',
+        customColors: ['#00ffff', '#ff00ff', '#ffcc00'] // Principal, Secundario, Acento
+    };
+
+    // ===== INICIALIZACIÓN =====
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.lucide) lucide.createIcons();
+        renderPresetButtons();
+        renderCustomColorSlots();
+        renderActivePalettePreview();
+        updatePrompt();
+        if (window.lucide) lucide.createIcons();
+    });
+
+    // ===== PALETA: MODO =====
+    function setPaletteMode(mode) {
+        state.paletteMode = mode;
+        document.getElementById('paletteMode').value = mode;
+
+        // UI tabs
+        document.querySelectorAll('#paletteModeBtns .preset-btn').forEach(btn => {
+            btn.classList.toggle('selected', btn.dataset.mode === mode);
+        });
+
+        // Panels
+        document.getElementById('palettePreset').classList.toggle('hidden', mode !== 'preset');
+        document.getElementById('paletteKeywords').classList.toggle('hidden', mode !== 'keywords');
+        document.getElementById('paletteCustom').classList.toggle('hidden', mode !== 'custom');
+
+        // Si vamos a custom, sincronizar desde preset actual
+        if (mode === 'custom') {
+            state.customColors = [...COLOR_PRESETS[state.selectedPreset]];
+            renderCustomColorSlots();
+        }
+
+        renderActivePalettePreview();
+        updatePrompt();
+    }
+
+    // ===== PALETA: PRESETS =====
+    function renderPresetButtons() {
+        const container = document.getElementById('presetBtns');
+        container.innerHTML = '';
+        PRESET_ORDER.forEach(name => {
+            const colors = COLOR_PRESETS[name];
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `preset-btn flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-300 border border-slate-700 rounded-xl hover:border-amber-500/50 transition-all ${name === state.selectedPreset ? 'selected' : ''}`;
+            btn.onclick = () => selectPreset(name);
+            btn.innerHTML = `
+                <span class="flex items-center gap-1">
+                    ${colors.map((c, i) => `<span class="color-swatch ${i===0 && name===state.selectedPreset ? 'selected' : ''}" style="background:${c || '#1e293b'}; width:16px;height:16px;border-radius:4px;"></span>`).join('')}
+                </span>
+                <span>${name}</span>
+                <i data-lucide="check" class="check w-3.5 h-3.5 inline-block ml-1"></i>
+            `;
+            container.appendChild(btn);
+        });
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function selectPreset(name) {
+        state.selectedPreset = name;
+        state.paletteMode = 'preset';
+        document.getElementById('paletteMode').value = 'preset';
+
+        // UI
+        document.querySelectorAll('#paletteModeBtns .preset-btn').forEach(btn => {
+            btn.classList.toggle('selected', btn.dataset.mode === 'preset');
+        });
+        document.getElementById('palettePreset').classList.remove('hidden');
+        document.getElementById('paletteKeywords').classList.add('hidden');
+        document.getElementById('paletteCustom').classList.add('hidden');
+
+        renderPresetButtons();
+        renderActivePalettePreview();
+        updatePrompt();
+    }
+
+    // ===== PALETA: CUSTOM HEX SLOTS =====
+    function renderCustomColorSlots() {
+        const container = document.getElementById('customColorSlots');
+        const labels = ['Principal', 'Secundario', 'Acento'];
+        container.innerHTML = '';
+        state.customColors.forEach((hex, i) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex flex-col items-center gap-1.5';
+            wrapper.innerHTML = `
+                <label class="text-[10px] text-slate-500 uppercase tracking-wide">${labels[i]}</label>
+                <div class="relative">
+                    <input type="color" value="${hex}" onchange="updateCustomColor(${i}, this.value)" class="w-12 h-12 rounded-lg border-2 border-slate-700 cursor-pointer appearance-none bg-slate-900" title="Color ${labels[i].toLowerCase()}">
+                    <input type="text" value="${hex.toUpperCase()}" oninput="updateCustomColorFromText(${i}, this.value)" class="absolute bottom-full left-0 mb-1 w-20 text-center text-[10px] font-mono bg-slate-900 border border-slate-700 rounded px-1 py-0.5 text-amber-300 focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="#RRGGBB">
+                </div>
+            `;
+            container.appendChild(wrapper);
+        });
+    }
+
+    function updateCustomColor(index, hex) {
+        state.customColors[index] = hex;
+        renderCustomColorSlots();
+        renderActivePalettePreview();
+        updatePrompt();
+    }
+
+    function updateCustomColorFromText(index, val) {
+        if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+            state.customColors[index] = val;
+            renderCustomColorSlots();
+            renderActivePalettePreview();
+            updatePrompt();
+        }
+    }
+
+    // ===== PALETA: KEYWORDS =====
+    // (se maneja directo con oninput en el input)
+
+    // ===== PREVIEW ACTIVA =====
+    function renderActivePalettePreview() {
+        const preview = document.getElementById('activePalettePreview');
+        const swatches = document.getElementById('activePaletteSwatches');
+        let colors = [], label = '';
+
+        if (state.paletteMode === 'preset') {
+            colors = COLOR_PRESETS[state.selectedPreset] || [];
+            label = `Preset: ${state.selectedPreset}`;
+        } else if (state.paletteMode === 'keywords') {
+            colors = [];
+            label = `Keywords: ${state.colorKeywords || '(vacío)'}`;
+        } else {
+            colors = state.customColors;
+            label = `Custom Hex: ${state.customColors.map(c => c.toUpperCase()).join(', ')}`;
+        }
+
+        preview.textContent = label;
+        swatches.innerHTML = '';
+        colors.forEach(c => {
+            if (c && c !== '') {
+                const s = document.createElement('span');
+                s.className = 'color-swatch';
+                s.style.background = c;
+                s.title = c.toUpperCase();
+                swatches.appendChild(s);
+            }
+        });
+    }
+
+    // ===== OBTENER VALORES DE CAMPOS =====
+    function getFieldValue(fieldId) {
+        const select = document.getElementById(fieldId + 'Select');
+        if (select.value === 'custom') {
+            const customInput = document.getElementById(fieldId + 'Custom');
+            const val = customInput.value.trim();
+            return val !== '' ? val : '[ESCRIBIR AQUÍ]';
+        }
+        return select.value;
+    }
+
+    function getResolution() {
+        const sel = document.getElementById('resolutionSelect');
+        if (sel.value === 'custom') {
+            const c = document.getElementById('resolutionCustom').value.trim();
+            return c !== '' ? c : '[ESCRIBIR AQUÍ]';
+        }
+        return sel.value;
+    }
+
+    // ===== GENERAR PROMPT =====
+    function updatePrompt() {
+        // Campos originales
+        const tipo = getFieldValue('tipoRecurso');
+        const estilo = getFieldValue('estiloVisual');
+        const desc = getFieldValue('descripcion');
+        const comportamiento = getFieldValue('comportamiento');
+        const plataforma = getFieldValue('plataforma');
+
+        // Datos básicos
+        const streamerName = document.getElementById('streamerName').value.trim() || '[NO ESPECIFICADO]';
+        const streamerTagline = document.getElementById('streamerTagline').value.trim() || '[NO ESPECIFICADO]';
+        const streamerSocials = document.getElementById('streamerSocials').value.trim() || '[NO ESPECIFICADO]';
+        const resolution = getResolution();
+        const framework = document.getElementById('frameworkSelect').value;
+
+        // Paleta de colores
+        let paletteBlock = '';
+        if (state.paletteMode === 'preset') {
+            const colors = COLOR_PRESETS[state.selectedPreset] || [];
+            paletteBlock = `MODO: Preset profesional
+Preset seleccionado: ${state.selectedPreset}
+Colores del preset:
+  - Principal: ${colors[0] || 'N/A'}
+  - Secundario: ${colors[1] || 'N/A'}
+  - Acento: ${colors[2] || 'N/A'}
+Estos colores HEX exactos deben usarse como base cromática del recurso.`;
+        } else if (state.paletteMode === 'keywords') {
+            paletteBlock = `MODO: Palabras clave cromáticas
+Keywords: ${state.colorKeywords || '(vacío — la IA decide)'}
+La IA debe interpretar estas palabras clave y generar una paleta coherente acorde al estilo visual.`;
+        } else {
+            paletteBlock = `MODO: Paleta personalizada (Hex definido por usuario)
+Colores definidos (orden = Principal → Secundario → Acento):
+  - Principal: ${state.customColors[0].toUpperCase()}
+  - Secundario: ${state.customColors[1].toUpperCase()}
+  - Acento: ${state.customColors[2].toUpperCase()}
+Estos colores HEX exactos son obligatorios y deben respetarse en todo el código (CSS variables, gradients, bordes, glows, textos).`;
+        }
+
+        // Template completo
+        const template = [
+            "PROMPT MAESTRO — RECURSOS PREMIUM PARA Streamers",
+            "Actúa como un desarrollador web senior especializado en UI/UX, motion graphics, animaciones CSS, JavaScript, interfaces interactivas, sistemas de eventos y desarrollo de recursos profesionales para OBS Studio y StreamElements.",
+            "Tu objetivo es crear recursos visuales de nivel comercial premium, completamente funcionales, optimizados para OBS Studio y preparados para utilizarse como Browser Source o StreamElements Custom Widget, dependiendo de la plataforma de destino.",
+            "El resultado debe sentirse como un producto creado por un estudio profesional de overlays para streamers.",
+            "",
+            "========================================",
+            "DATOS BÁSICOS DEL STREAMER (INYECTAR EN EL RECURSO SI APLICA)",
+            "========================================",
+            `Nombre del streamer/canal: ${streamerName}`,
+            `Tagline/eslogan: ${streamerTagline}`,
+            `Redes sociales: ${streamerSocials}`,
+            `Resolución base: ${resolution}`,
+            `Framework/librería preferida: ${framework}`,
+            "",
+            "========================================",
+            "PALETA DE COLORES (OBLIGATORIA — RESPETAR EXACTAMENTE)",
+            "========================================",
+            paletteBlock,
+            "",
+            "========================================",
+            "CONFIGURACIÓN DEL RECURSO",
+            "========================================",
+            "Antes de escribir el código, analiza cuidadosamente los siguientes parámetros.",
+            "IMPORTANTE: Estos son los únicos campos que modificaré cuando quiera crear un recurso diferente. El resto del prompt debe permanecer igual.",
+            "",
+            "1. TIPO DE RECURSO",
+            "Tipo de recurso:",
+            tipo,
+            "",
+            "2. ESTILO VISUAL",
+            "Estilo visual:",
+            estilo,
+            "El estilo indicado debe convertirse en la identidad visual principal de todo el recurso.",
+            "No mezcles estilos sin una razón clara.",
+            "",
+            "3. DESCRIPCIÓN DEL RECURSO",
+            "Descripción:",
+            desc,
+            "",
+            "4. COMPORTAMIENTO",
+            "Comportamiento:",
+            comportamiento,
+            "",
+            "5. PLATAFORMA DE DESTINO",
+            "Plataforma de destino:",
+            plataforma,
+            "Esta selección determina cómo debes estructurar y entregar el código.",
+            "",
+            "========================================",
+            "FORMATO DE ENTREGA SEGÚN LA PLATAFORMA",
+            "========================================",
+            "SI LA PLATAFORMA DE DESTINO ES STREAMELEMENTS",
+            "El recurso debe estar preparado específicamente como:",
+            "StreamElements -> Custom Widget -> Open Editor",
+            "StreamElements proporciona pestañas independientes para: HTML, CSS, JS, Fields, Data.",
+            "Por lo tanto, NO debes entregar un documento HTML completo con <!DOCTYPE html>, <html>, <head>, <body>, <style> y <script> mezclados.",
+            "Entrega el código separado exactamente según las pestañas de StreamElements:",
+            "La respuesta debe tener esta estructura:",
+            "=== HTML ===",
+            "[SOLO EL CÓDIGO HTML PARA LA PESTAÑA HTML]",
+            "",
+            "=== CSS ===",
+            "[SOLO EL CÓDIGO CSS PARA LA PESTAÑA CSS]",
+            "",
+            "=== JS ===",
+            "[SOLO EL CÓDIGO JAVASCRIPT PARA LA PESTAÑA JS]",
+            "",
+            "=== FIELDS ===",
+            "[SOLO EL CÓDIGO/CONFIGURACIÓN NECESARIO PARA FIELDS O 'NO REQUIERE FIELDS']",
+            "",
+            "=== DATA ===",
+            "[SOLO EL CÓDIGO/CONFIGURACIÓN NECESARIO PARA DATA O 'NO REQUIERE DATA']",
+            "",
+            "No inventes configuraciones innecesarias.",
+            "No coloques JavaScript dentro de Fields.",
+            "No coloques CSS dentro de Data.",
+            "No coloques HTML dentro de Fields.",
+            "Cada sección debe contener únicamente lo que corresponde a su función.",
+            "SI LA PLATAFORMA ES OBS DIRECTO",
+            "Entrega un único archivo HTML completo con <!DOCTYPE html>, <head>, <style>, <body> y <script>.",
+            "",
+            "========================================",
+            "REGLA FUNDAMENTAL DE LIENZO Y RESOLUCIÓN",
+            "========================================",
+            "Todos los recursos deben diseñarse tomando como viewport de referencia principal: 1920 x 1080 píxeles — relación 16:9. Si el Usuario especifíca otra resolución, respetar la decisión del Usuario",
+            "Ningún elemento importante debe quedar fuera de ese viewport ni cortado.",
+            "",
+            "========================================",
+            "RESPONSIVE Y ADAPTACIÓN DEL VIEWPORT",
+            "========================================",
+            "Aunque 1920×1080 sea el tamaño de referencia, el recurso debe funcionar correctamente si el Browser Source tiene otro tamaño.",
+            "Utiliza técnicas como:",
+            "- width: 100%",
+            "- height: 100%",
+            "- 100vw",
+            "- 100vh",
+            "- max-width",
+            "- max-height",
+            "- clamp()",
+            "- aspect-ratio",
+            "- transform",
+            "- porcentajes",
+            "- unidades relativas",
+            "cuando sean apropiadas.",
+            "No dependas exclusivamente de posiciones absolutas expresadas en píxeles que puedan provocar que los elementos desaparezcan cuando el viewport sea diferente.",
+            "",
+             "========================================",
+            "REGLA ESPECIAL PARA ALERTAS",
+            "========================================",
+            "Las alertas deben diseñarse dentro del viewport completo",
+            "Por defecto:",
+            "- La alerta debe comenzar oculta.",
+            "- El contenedor principal debe tener una posición válida dentro del viewport.",
+            "- La alerta debe poder visualizarse inmediatamente al activar el modo de prueba.",
+            "- El elemento no debe quedar fuera del viewport.",
+            "- La animación de entrada debe partir desde una posición visible o razonablemente cercana al área visible.",
+            "- La animación de salida puede utilizar desplazamiento, pero nunca debe provocar problemas al siguiente evento.",
+            "- La alerta debe poder ejecutarse nuevamente sin necesidad de recargar el widget.",
+            "IMPORTANTE:",
+            "- No utilices: (display: none;) como único sistema de ocultación si eso impide realizar correctamente las animaciones ",
+            "- Prefiere sistemas como: ( opacity: 0; - visibility: hidden; - pointer-events: none; - transform: scale(0.95); ) o una arquitectura equivalente. ",
+            "- Cuando se active: ( opacity: 1; - visibility: visible; - pointer-events: auto; ) y ejecuta la animación correspondiente.",
+            "",
+            "========================================",
+            "REQUISITOS DE CALIDAD PREMIUM (APLICAR SIEMPRE)",
+            "========================================",
+            "- CSS Variables para TODOS los colores de la paleta (--color-primary, --color-secondary, --color-accent).",
+            "- Animaciones suaves con @keyframes y prefers-reduced-motion.",
+            "- Código limpio, comentado, sin dependencias externas salvo lo especificado en Framework.",
+            "- Accesibilidad: contrastes WCAG AA, focus-visible, aria-labels en botones/controles.",
+            "- Responsive dentro del viewport 16:9 (escalado con transform: scale si OBS lo requiere).",
+            "- Sin errores de consola. Sin memory leaks. Event listeners limpiados en cleanup().",
+            "",
+            "ENTREGA SIEMPRE CÓDIGO COMPLETO, FUNCIONAL, PROFESIONAL Y LISTO PARA UTILIZAR."
+        ];
+
+        const fullPrompt = template.join("\n");
+        const promptTextarea = document.getElementById('promptResult');
+        if (promptTextarea) {
+            promptTextarea.value = fullPrompt;
+            document.getElementById('charCount').textContent = fullPrompt.length.toLocaleString() + ' caracteres';
+        }
+    }
+
+    // ===== SELECT HANDLERS =====
+    function handleSelectChange(fieldId) {
+        const select = document.getElementById(fieldId + 'Select');
+        const customInput = document.getElementById(fieldId + 'Custom');
+
+        if (select.value === 'custom') {
+            customInput.classList.remove('hidden');
+            customInput.focus();
+        } else {
+            customInput.classList.add('hidden');
+        }
+        // Resolución custom
+        if (fieldId === 'resolution') {
+            document.getElementById('resolutionCustom').classList.toggle('hidden', select.value !== 'custom');
+        }
+        updatePrompt();
+    }
+
+    // ===== COPY / RESET =====
+    function copyPrompt() {
+        const promptTextarea = document.getElementById('promptResult');
+        promptTextarea.select();
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(promptTextarea.value).then(showCopySuccess);
+        } else {
+            document.execCommand('copy');
+            showCopySuccess();
+        }
+    }
+
+    function showCopySuccess() {
+        const copyBtnText = document.getElementById('copyBtnText');
+        const copyBtn = document.getElementById('copyBtn');
+
+        copyBtnText.textContent = '¡Copiado!';
+        copyBtn.classList.remove('from-purple-600', 'to-indigo-600');
+        copyBtn.classList.add('from-emerald-600', 'to-teal-600');
+
+        setTimeout(function() {
+            copyBtnText.textContent = 'Copiar Prompt';
+            copyBtn.classList.remove('from-emerald-600', 'to-teal-600');
+            copyBtn.classList.add('from-purple-600', 'to-indigo-600');
+        }, 2000);
+    }
+
+    function resetForm() {
+        // Campos originales
+        ['tipoRecurso', 'estiloVisual', 'descripcion', 'comportamiento', 'plataforma'].forEach(field => {
+            const select = document.getElementById(field + 'Select');
+            const customInput = document.getElementById(field + 'Custom');
+            select.selectedIndex = 0;
+            customInput.value = '';
+            customInput.classList.add('hidden');
+        });
+        // Datos básicos
+        ['streamerName', 'streamerTagline', 'streamerSocials'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+        document.getElementById('resolutionSelect').selectedIndex = 0;
+        document.getElementById('resolutionCustom').value = '';
+        document.getElementById('resolutionCustom').classList.add('hidden');
+        document.getElementById('frameworkSelect').selectedIndex = 0;
+        // Paleta
+        state.paletteMode = 'preset';
+        state.selectedPreset = 'Cyberpunk Neon';
+        state.colorKeywords = '';
+        state.customColors = ['#00ffff', '#ff00ff', '#ffcc00'];
+        document.getElementById('colorKeywords').value = '';
+        document.getElementById('paletteMode').value = 'preset';
+        setPaletteMode('preset'); // re-render UI
+
+        updatePrompt();
+    }
+</script>
+</body>
+</html>
