@@ -1,6 +1,9 @@
 # Wild-Overlays
 # 🎬 StreamPrompt Engine
 
+<img width="1272" height="934" alt="image" src="https://github.com/user-attachments/assets/8719168a-7588-48c0-b519-3c4a27661d53" />
+
+
 **Generador de prompts para crear overlays de stream con IA.**
 Elige el tipo de recurso, el estilo, los colores y la plataforma, y la herramienta te arma un prompt completo y listo para pegarlo en tu asistente de IA favorito (Claude, ChatGPT, Gemini, etc.). La IA te devuelve el código del overlay, la alerta o la pantalla.
 
