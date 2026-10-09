@@ -3,9 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WILD Overlays - Generador de Prompts OBS Studio & StreamElements</title>
+    <title>StreamPrompt Engine — Generador de prompts para overlays de OBS y StreamElements | WILD Overlays</title>
+    <meta name="description" content="Herramienta gratis para crear prompts profesionales y generar overlays, alertas y pantallas de stream con IA. Compatible con OBS Studio, StreamElements, Streamlabs, Meld Studio y Streamer.bot.">
+    <meta name="theme-color" content="#0f172a">
+    <!-- Vista previa al compartir el link (Discord, Instagram, WhatsApp, X) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="StreamPrompt Engine — Generador de prompts para overlays">
+    <meta property="og:description" content="Crea overlays, alertas y pantallas de stream con IA en minutos. Gratis, por Nicothewild · WILD Overlays.">
+    <meta property="og:locale" content="es_ES">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="StreamPrompt Engine — Generador de prompts para overlays">
+    <meta name="twitter:description" content="Crea overlays, alertas y pantallas de stream con IA en minutos. Gratis.">
+    <!-- Para que se vea una imagen al compartir: sube una imagen (1200x630) al repositorio y descomenta estas lineas
+         cambiando TUUSUARIO por tu usuario de GitHub:
+    <meta property="og:url" content="https://TUUSUARIO.github.io/StreamPrompt-Engine/">
+    <meta property="og:image" content="https://TUUSUARIO.github.io/StreamPrompt-Engine/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://TUUSUARIO.github.io/StreamPrompt-Engine/og-image.png">
+    -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AC%3C/text%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Version fija de Lucide: evita que la herramienta se rompa si salen cambios nuevos -->
+    <script src="https://unpkg.com/lucide@0.383.0/dist/umd/lucide.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -170,9 +189,9 @@
             </div>
             <div>
                 <h1 class="text-xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-                    Generador de Prompts Premium
+                    StreamPrompt Engine
                 </h1>
-                <p class="text-xs text-purple-400 font-medium"> WILD Overlays · Recursos OBS Studio & StreamElements</p>
+                <p class="text-xs text-purple-400 font-medium">WILD Overlays · Generador de prompts para OBS Studio, StreamElements y más</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
@@ -321,7 +340,7 @@ Debe poder utilizarse múltiples veces sin recargar la página.
                         <i data-lucide="user" class="w-5 h-5 text-emerald-400"></i>
                         Datos Básicos del Streamer
                     </h2>
-                    <p class="text-xs text-slate-400 mt-1">Información que se inyecta en el prompt para personalizar el recurso.</p>
+                    <p class="text-xs text-slate-400 mt-1">Información que se inyecta en el prompt para personalizar el recurso. Se guarda en este navegador para la próxima vez.</p>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -448,6 +467,14 @@ Debe poder utilizarse múltiples veces sin recargar la página.
                 <!-- PROMPT TEXTAREA -->
                 <div class="mt-4 flex-grow relative rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
                     <textarea id="promptResult" readonly class="w-full h-full p-4 bg-slate-950 text-slate-300 text-xs leading-relaxed resize-none focus:outline-none font-mono selection:bg-purple-900 selection:text-purple-100"></textarea>
+                </div>
+
+                <div class="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
+                    <span class="text-slate-500">Copiar y abrir en:</span>
+                    <button type="button" onclick="copyAndOpen('https://claude.ai/new')" class="px-2.5 py-1 rounded-lg border border-slate-700 text-slate-300 hover:text-white hover:border-purple-500/60 hover:bg-slate-800 transition-all">Claude</button>
+                    <button type="button" onclick="copyAndOpen('https://chatgpt.com/')" class="px-2.5 py-1 rounded-lg border border-slate-700 text-slate-300 hover:text-white hover:border-purple-500/60 hover:bg-slate-800 transition-all">ChatGPT</button>
+                    <button type="button" onclick="copyAndOpen('https://gemini.google.com/app')" class="px-2.5 py-1 rounded-lg border border-slate-700 text-slate-300 hover:text-white hover:border-purple-500/60 hover:bg-slate-800 transition-all">Gemini</button>
+                    <span class="text-slate-600">Luego pega el prompt (Ctrl+V).</span>
                 </div>
 
                 <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
@@ -587,7 +614,8 @@ Función: Similar a Starting Soon pero con texto "Esperando a [Nombre]...".</div
 <!-- FOOTER -->
 <footer class="border-t border-slate-900 bg-slate-950/90 py-6 text-center text-xs text-slate-500">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <p>© Generador de Prompts OBS & StreamElements —  Wild Overlays</p>
+        <p>© StreamPrompt Engine — WILD Overlays</p>
+        <div id="footerLinks" class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1"></div>
         <p class="font-medium text-slate-400 bg-slate-900 border border-slate-800/80 px-3 py-1 rounded-full">
             Creado por <a href="https://www.instagram.com/nicothewildtv/" target="_blank" rel="noopener noreferrer" class="text-purple-400 font-semibold hover:underline">Nicothewild</a>
         </p>
@@ -620,6 +648,33 @@ Función: Similar a Starting Soon pero con texto "Esperando a [Nombre]...".</div
         "Custom (vacío)"
     ];
 
+    // ===== REDES (edita aqui tus links; los vacios no se muestran) =====
+    const SOCIAL_LINKS = [
+        { name: 'Instagram', url: 'https://www.instagram.com/nicothewildtv/' },
+        { name: 'Twitch',    url: '' },
+        { name: 'YouTube',   url: '' },
+        { name: 'TikTok',    url: '' },
+        { name: 'Discord',   url: '' },
+        { name: 'GitHub',    url: '' }
+    ];
+
+    function renderFooterLinks() {
+        const box = document.getElementById('footerLinks');
+        if (!box) return;
+        box.innerHTML = '';
+        SOCIAL_LINKS.forEach(function (s) {
+            if (!/^https?:\/\//i.test(s.url || '')) return;
+            const a = document.createElement('a');
+            a.href = s.url;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.textContent = s.name;
+            a.className = 'text-slate-400 hover:text-purple-400 hover:underline transition-colors';
+            box.appendChild(a);
+        });
+        if (!box.children.length) box.classList.add('hidden');
+    }
+
     // ===== ESTADO =====
     let state = {
         paletteMode: 'preset',
@@ -628,9 +683,77 @@ Función: Similar a Starting Soon pero con texto "Esperando a [Nombre]...".</div
         customColors: ['#00ffff', '#ff00ff', '#ffcc00'] // Principal, Secundario, Acento
     };
 
+    // ===== GUARDADO EN EL NAVEGADOR =====
+    const STORAGE_KEY = 'streamprompt_engine_v1';
+    const HEX_RE = /^#[0-9a-fA-F]{6}$/;
+
+    function saveSettings() {
+        try {
+            const sel = document.getElementById('resolutionSelect');
+            const data = {
+                streamerName: document.getElementById('streamerName').value,
+                streamerTagline: document.getElementById('streamerTagline').value,
+                streamerSocials: document.getElementById('streamerSocials').value,
+                resolution: sel ? sel.value : '',
+                resolutionCustom: document.getElementById('resolutionCustom').value,
+                framework: document.getElementById('frameworkSelect').value,
+                paletteMode: state.paletteMode,
+                selectedPreset: state.selectedPreset,
+                colorKeywords: state.colorKeywords,
+                customColors: state.customColors
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) { /* sin almacenamiento disponible: la herramienta sigue funcionando */ }
+    }
+
+    function loadSettings() {
+        let data = null;
+        try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (e) { data = null; }
+        if (!data || typeof data !== 'object') return;
+
+        const setVal = function (id, v) {
+            const el = document.getElementById(id);
+            if (el && typeof v === 'string') el.value = v.slice(0, 300);
+        };
+        const setSelect = function (id, v) {
+            const el = document.getElementById(id);
+            if (el && typeof v === 'string' && Array.from(el.options).some(function (o) { return o.value === v; })) el.value = v;
+        };
+
+        setVal('streamerName', data.streamerName);
+        setVal('streamerTagline', data.streamerTagline);
+        setVal('streamerSocials', data.streamerSocials);
+        setSelect('resolutionSelect', data.resolution);
+        setVal('resolutionCustom', data.resolutionCustom);
+        document.getElementById('resolutionCustom').classList.toggle('hidden', document.getElementById('resolutionSelect').value !== 'custom');
+        setSelect('frameworkSelect', data.framework);
+
+        if (['preset', 'keywords', 'custom'].indexOf(data.paletteMode) !== -1) state.paletteMode = data.paletteMode;
+        if (typeof data.selectedPreset === 'string' && Object.prototype.hasOwnProperty.call(COLOR_PRESETS, data.selectedPreset)) state.selectedPreset = data.selectedPreset;
+        if (typeof data.colorKeywords === 'string') {
+            state.colorKeywords = data.colorKeywords.slice(0, 500);
+            document.getElementById('colorKeywords').value = state.colorKeywords;
+        }
+        if (Array.isArray(data.customColors) && data.customColors.length === 3 &&
+            data.customColors.every(function (c) { return typeof c === 'string' && HEX_RE.test(c); })) {
+            state.customColors = data.customColors.slice();
+        }
+
+        // Reflejar el modo de paleta en la interfaz (sin pisar los colores guardados)
+        document.getElementById('paletteMode').value = state.paletteMode;
+        document.querySelectorAll('#paletteModeBtns .preset-btn').forEach(function (btn) {
+            btn.classList.toggle('selected', btn.dataset.mode === state.paletteMode);
+        });
+        document.getElementById('palettePreset').classList.toggle('hidden', state.paletteMode !== 'preset');
+        document.getElementById('paletteKeywords').classList.toggle('hidden', state.paletteMode !== 'keywords');
+        document.getElementById('paletteCustom').classList.toggle('hidden', state.paletteMode !== 'custom');
+    }
+
     // ===== INICIALIZACIÓN =====
     document.addEventListener('DOMContentLoaded', function() {
         if (window.lucide) lucide.createIcons();
+        loadSettings();
+        renderFooterLinks();
         renderPresetButtons();
         renderCustomColorSlots();
         renderActivePalettePreview();
@@ -732,7 +855,10 @@ Función: Similar a Starting Soon pero con texto "Esperando a [Nombre]...".</div
     function updateCustomColorFromText(index, val) {
         if (/^#[0-9a-fA-F]{6}$/.test(val)) {
             state.customColors[index] = val;
-            renderCustomColorSlots();
+            // Se actualiza solo el selector de color (sin redibujar) para no perder el foco al escribir
+            const slot = document.getElementById('customColorSlots').children[index];
+            const picker = slot ? slot.querySelector('input[type="color"]') : null;
+            if (picker) picker.value = val.toLowerCase();
             renderActivePalettePreview();
             updatePrompt();
         }
@@ -791,6 +917,114 @@ Función: Similar a Starting Soon pero con texto "Esperando a [Nombre]...".</div
         return sel.value;
     }
 
+    // ===== REGLAS DE ENTREGA POR PLATAFORMA =====
+    function detectPlatform(p) {
+        const s = String(p || '').toLowerCase();
+        if (/streamelements/.test(s)) return 'se';
+        if (/streamlabs/.test(s)) return 'sl';
+        if (/streamer\.?\s?bot/.test(s)) return 'sb';
+        if (/meld/.test(s)) return 'meld';
+        if (/obs/.test(s)) return 'obs';
+        return 'generic';
+    }
+
+    const TEST_MODE_LINE = "Incluye un modo de prueba: al abrir la página con ?test=1 (o al llamar a window.testOverlay()) debe simular el evento o estado del recurso para poder previsualizarlo sin depender de eventos reales.";
+    const BROWSER_SOURCE_RULES = [
+        "El fondo debe ser transparente (background: transparent) y la página sin márgenes ni scroll (overflow: hidden).",
+        "Debe funcionar tanto abierta como archivo local como servida desde una URL."
+    ];
+
+    function deliveryBlock(key, plataforma) {
+        if (key === 'se') {
+            return [
+                "PLATAFORMA: STREAMELEMENTS",
+                "El recurso debe estar preparado específicamente como:",
+                "StreamElements -> Custom Widget -> Open Editor",
+                "StreamElements proporciona pestañas independientes para: HTML, CSS, JS, Fields, Data.",
+                "Por lo tanto, NO debes entregar un documento HTML completo con <!DOCTYPE html>, <html>, <head>, <body>, <style> y <script> mezclados.",
+                "Entrega el código separado exactamente según las pestañas de StreamElements:",
+                "La respuesta debe tener esta estructura:",
+                "=== HTML ===",
+                "[SOLO EL CÓDIGO HTML PARA LA PESTAÑA HTML]",
+                "",
+                "=== CSS ===",
+                "[SOLO EL CÓDIGO CSS PARA LA PESTAÑA CSS]",
+                "",
+                "=== JS ===",
+                "[SOLO EL CÓDIGO JAVASCRIPT PARA LA PESTAÑA JS]",
+                "",
+                "=== FIELDS ===",
+                "[SOLO EL CÓDIGO/CONFIGURACIÓN NECESARIO PARA FIELDS O 'NO REQUIERE FIELDS']",
+                "",
+                "=== DATA ===",
+                "[SOLO EL CÓDIGO/CONFIGURACIÓN NECESARIO PARA DATA O 'NO REQUIERE DATA']",
+                "",
+                "No inventes configuraciones innecesarias.",
+                "No coloques JavaScript dentro de Fields.",
+                "No coloques CSS dentro de Data.",
+                "No coloques HTML dentro de Fields.",
+                "Cada sección debe contener únicamente lo que corresponde a su función.",
+                "",
+                "Estructura técnica de un Custom Widget (aplícala según el tipo de recurso):",
+                "- Usa window.addEventListener('onWidgetLoad', ...) para leer fieldData y los datos de la sesión.",
+                "- Usa window.addEventListener('onEventReceived', ...) para reaccionar a eventos reales, leyendo obj.detail.listener y obj.detail.event (por ejemplo 'follower-latest', 'subscriber-latest', 'tip-latest', 'cheer-latest', 'raid-latest' y 'message' para el chat).",
+                "- Todo valor configurable (colores, textos, duración, tamaños) debe exponerse en FIELDS y leerse desde fieldData o con la sintaxis {{campo}}.",
+                "- El recurso debe funcionar con los botones de emulación (test) del editor de StreamElements."
+            ];
+        }
+        if (key === 'sl') {
+            return [
+                "PLATAFORMA: STREAMLABS",
+                "Si el recurso es una alerta, prepáralo como Streamlabs Alert Box -> Custom Code (HTML/CSS/JS) y entrega el código separado por pestañas:",
+                "=== HTML ===",
+                "=== CSS ===",
+                "=== JS ===",
+                "=== JSON ===",
+                "Usa las variables de plantilla de Streamlabs (por ejemplo {name}, {amount}, {message}) donde corresponda. Si no estás seguro de una variable, indícalo en un comentario en lugar de inventarla.",
+                "Si el recurso NO es una alerta (pantalla, marco, barra), entrégalo como un único archivo HTML completo para usar como fuente de navegador.",
+                ...BROWSER_SOURCE_RULES,
+                TEST_MODE_LINE
+            ];
+        }
+        if (key === 'sb') {
+            return [
+                "PLATAFORMA: STREAMER.BOT",
+                "Entrega un único archivo HTML completo (<!DOCTYPE html>, <head>, <style>, <body> y <script>) para usar como Browser Source, que se conecte al servidor WebSocket de Streamer.bot.",
+                "- Host y puerto configurables en variables al inicio del script (por defecto 127.0.0.1 y 8080).",
+                "- Suscríbete solo a los eventos que el recurso necesite y reconecta automáticamente si se pierde la conexión.",
+                "- Indica en comentarios qué acción o evento debo crear en Streamer.bot para activar el recurso.",
+                ...BROWSER_SOURCE_RULES,
+                TEST_MODE_LINE
+            ];
+        }
+        if (key === 'meld') {
+            return [
+                "PLATAFORMA: MELD STUDIO",
+                "Entrega un único archivo HTML completo (<!DOCTYPE html>, <head>, <style>, <body> y <script>) para usar como fuente de navegador (capa web) en Meld Studio.",
+                ...BROWSER_SOURCE_RULES,
+                "Indica el ancho y alto que debo configurar en la capa (según la resolución base).",
+                TEST_MODE_LINE
+            ];
+        }
+        if (key === 'obs') {
+            return [
+                "PLATAFORMA: OBS STUDIO (BROWSER SOURCE)",
+                "Entrega un único archivo HTML completo con <!DOCTYPE html>, <head>, <style>, <body> y <script>.",
+                "Debe poder usarse como Fuente de navegador (Browser Source) en OBS Studio.",
+                ...BROWSER_SOURCE_RULES,
+                "Indica el ancho y alto que debo configurar en la fuente (según la resolución base).",
+                TEST_MODE_LINE
+            ];
+        }
+        return [
+            "PLATAFORMA: " + plataforma,
+            "Si conoces las reglas exactas de esta plataforma, estructura el código como ella lo exige y explícalo al final.",
+            "Si no las conoces, dilo claramente y entrega un único archivo HTML completo, funcional como Browser Source (HTML, CSS y JavaScript en el mismo archivo).",
+            ...BROWSER_SOURCE_RULES,
+            TEST_MODE_LINE
+        ];
+    }
+
     // ===== GENERAR PROMPT =====
     function updatePrompt() {
         // Campos originales
@@ -831,32 +1065,45 @@ Colores definidos (orden = Principal → Secundario → Acento):
 Estos colores HEX exactos son obligatorios y deben respetarse en todo el código (CSS variables, gradients, bordes, glows, textos).`;
         }
 
-        // Template completo
+        // Reglas según plataforma y tipo de recurso
+        const platKey = detectPlatform(plataforma);
+        const tipoIsCustom = document.getElementById('tipoRecursoSelect').value === 'custom';
+        const tipoIsAlert = /alert/i.test(tipo);
+        const H = function (t) { return ["========================================", t, "========================================"]; };
+
+        let frameworkRule;
+        if (/vanilla/i.test(framework)) {
+            frameworkRule = "Sin dependencias externas: usa solo HTML, CSS y JavaScript puros.";
+        } else if (/sin preferencia/i.test(framework)) {
+            frameworkRule = "Elige la tecnología más ligera y estable. Evita dependencias externas salvo que aporten un beneficio claro; si usas alguna, cárgala por CDN con versión fija.";
+        } else {
+            frameworkRule = "Usa únicamente " + framework + " como dependencia externa, cargada por CDN con versión fija (nunca @latest). No agregues otras librerías externas.";
+        }
+
         const template = [
-            "Prompt Generador de recursos Premium para Streamers",
+            "PROMPT MAESTRO — RECURSOS PREMIUM PARA Streamers",
             "Actúa como un desarrollador web senior especializado en UI/UX, motion graphics, animaciones CSS, JavaScript, interfaces interactivas, sistemas de eventos y desarrollo de recursos profesionales para OBS Studio y StreamElements.",
             "Tu objetivo es crear recursos visuales de nivel comercial premium, completamente funcionales, optimizados para OBS Studio y preparados para utilizarse como Browser Source o StreamElements Custom Widget, dependiendo de la plataforma de destino.",
             "El resultado debe sentirse como un producto creado por un estudio profesional de overlays para streamers.",
             "",
-            "========================================",
-            "DATOS BÁSICOS DEL STREAMER (INYECTAR EN EL RECURSO SI APLICA)",
-            "========================================",
+            ...H("ANTES DE PROGRAMAR"),
+            "- Si algún campo aparece como [ESCRIBIR AQUÍ], pídeme ese dato antes de escribir el código (máximo 3 preguntas, cortas y en un solo mensaje).",
+            "- Los campos marcados como [NO ESPECIFICADO] son opcionales: usa textos de ejemplo claramente editables y no inventes datos personales.",
+            "- Si todo está completo, no hagas preguntas: entrega el código directamente.",
+            "",
+            ...H("DATOS BÁSICOS DEL STREAMER (INYECTAR EN EL RECURSO SI APLICA)"),
             `Nombre del streamer/canal: ${streamerName}`,
             `Tagline/eslogan: ${streamerTagline}`,
             `Redes sociales: ${streamerSocials}`,
             `Resolución base: ${resolution}`,
             `Framework/librería preferida: ${framework}`,
             "",
-            "========================================",
-            "PALETA DE COLORES (OBLIGATORIA — RESPETAR EXACTAMENTE)",
-            "========================================",
+            ...H("PALETA DE COLORES (OBLIGATORIA — RESPETAR EXACTAMENTE)"),
             paletteBlock,
             "",
-            "========================================",
-            "CONFIGURACIÓN DEL RECURSO",
-            "========================================",
+            ...H("CONFIGURACIÓN DEL RECURSO"),
             "Antes de escribir el código, analiza cuidadosamente los siguientes parámetros.",
-            "IMPORTANTE: Estos son los únicos campos que modificaré cuando quiera crear un recurso diferente. El resto del prompt debe permanecer igual.",
+            "Estos son los parámetros de este recurso. Si más adelante pido otro recurso, cambiaré solo estos campos y el resto de las reglas se mantiene.",
             "",
             "1. TIPO DE RECURSO",
             "Tipo de recurso:",
@@ -881,48 +1128,14 @@ Estos colores HEX exactos son obligatorios y deben respetarse en todo el código
             plataforma,
             "Esta selección determina cómo debes estructurar y entregar el código.",
             "",
-            "========================================",
-            "FORMATO DE ENTREGA SEGÚN LA PLATAFORMA",
-            "========================================",
-            "SI LA PLATAFORMA DE DESTINO ES STREAMELEMENTS",
-            "El recurso debe estar preparado específicamente como:",
-            "StreamElements -> Custom Widget -> Open Editor",
-            "StreamElements proporciona pestañas independientes para: HTML, CSS, JS, Fields, Data.",
-            "Por lo tanto, NO debes entregar un documento HTML completo con <!DOCTYPE html>, <html>, <head>, <body>, <style> y <script> mezclados.",
-            "Entrega el código separado exactamente según las pestañas de StreamElements:",
-            "La respuesta debe tener esta estructura:",
-            "=== HTML ===",
-            "[SOLO EL CÓDIGO HTML PARA LA PESTAÑA HTML]",
+            ...H("FORMATO DE ENTREGA SEGÚN LA PLATAFORMA"),
+            ...deliveryBlock(platKey, plataforma),
             "",
-            "=== CSS ===",
-            "[SOLO EL CÓDIGO CSS PARA LA PESTAÑA CSS]",
-            "",
-            "=== JS ===",
-            "[SOLO EL CÓDIGO JAVASCRIPT PARA LA PESTAÑA JS]",
-            "",
-            "=== FIELDS ===",
-            "[SOLO EL CÓDIGO/CONFIGURACIÓN NECESARIO PARA FIELDS O 'NO REQUIERE FIELDS']",
-            "",
-            "=== DATA ===",
-            "[SOLO EL CÓDIGO/CONFIGURACIÓN NECESARIO PARA DATA O 'NO REQUIERE DATA']",
-            "",
-            "No inventes configuraciones innecesarias.",
-            "No coloques JavaScript dentro de Fields.",
-            "No coloques CSS dentro de Data.",
-            "No coloques HTML dentro de Fields.",
-            "Cada sección debe contener únicamente lo que corresponde a su función.",
-            "SI LA PLATAFORMA ES OBS DIRECTO",
-            "Entrega un único archivo HTML completo con <!DOCTYPE html>, <head>, <style>, <body> y <script>.",
-            "",
-            "========================================",
-            "REGLA FUNDAMENTAL DE LIENZO Y RESOLUCIÓN",
-            "========================================",
-            "Todos los recursos deben diseñarse tomando como viewport de referencia principal: 1920 x 1080 píxeles — relación 16:9. Si el Usuario especifíca otra resolución, respetar la decisión del Usuario",
+            ...H("REGLA FUNDAMENTAL DE LIENZO Y RESOLUCIÓN"),
+            "Todos los recursos deben diseñarse tomando como viewport de referencia principal: 1920 x 1080 píxeles — relación 16:9. Si el usuario especifica otra resolución, respeta la decisión del usuario.",
             "Ningún elemento importante debe quedar fuera de ese viewport ni cortado.",
             "",
-            "========================================",
-            "RESPONSIVE Y ADAPTACIÓN DEL VIEWPORT",
-            "========================================",
+            ...H("RESPONSIVE Y ADAPTACIÓN DEL VIEWPORT"),
             "Aunque 1920×1080 sea el tamaño de referencia, el recurso debe funcionar correctamente si el Browser Source tiene otro tamaño.",
             "Utiliza técnicas como:",
             "- width: 100%",
@@ -939,32 +1152,33 @@ Estos colores HEX exactos son obligatorios y deben respetarse en todo el código
             "cuando sean apropiadas.",
             "No dependas exclusivamente de posiciones absolutas expresadas en píxeles que puedan provocar que los elementos desaparezcan cuando el viewport sea diferente.",
             "",
-             "========================================",
-            "REGLA ESPECIAL PARA ALERTAS",
-            "========================================",
-            "Las alertas deben diseñarse dentro del viewport completo",
-            "Por defecto:",
-            "- La alerta debe comenzar oculta.",
-            "- El contenedor principal debe tener una posición válida dentro del viewport.",
-            "- La alerta debe poder visualizarse inmediatamente al activar el modo de prueba.",
-            "- El elemento no debe quedar fuera del viewport.",
-            "- La animación de entrada debe partir desde una posición visible o razonablemente cercana al área visible.",
-            "- La animación de salida puede utilizar desplazamiento, pero nunca debe provocar problemas al siguiente evento.",
-            "- La alerta debe poder ejecutarse nuevamente sin necesidad de recargar el widget.",
-            "IMPORTANTE:",
-            "- No utilices: (display: none;) como único sistema de ocultación si eso impide realizar correctamente las animaciones ",
-            "- Prefiere sistemas como: ( opacity: 0; - visibility: hidden; - pointer-events: none; - transform: scale(0.95); ) o una arquitectura equivalente. ",
-            "- Cuando se active: ( opacity: 1; - visibility: visible; - pointer-events: auto; ) y ejecuta la animación correspondiente.",
-            "",
-            "========================================",
-            "REQUISITOS DE CALIDAD PREMIUM (APLICAR SIEMPRE)",
-            "========================================",
+            ...((tipoIsAlert || tipoIsCustom) ? [
+                ...H(tipoIsAlert ? "REGLA ESPECIAL PARA ALERTAS" : "REGLA ESPECIAL PARA ALERTAS (APLICA SOLO SI EL RECURSO ES UNA ALERTA)"),
+                "Las alertas deben diseñarse dentro del viewport completo.",
+                "Por defecto:",
+                "- La alerta debe comenzar oculta.",
+                "- El contenedor principal debe tener una posición válida dentro del viewport.",
+                "- La alerta debe poder visualizarse inmediatamente al activar el modo de prueba.",
+                "- El elemento no debe quedar fuera del viewport.",
+                "- La animación de entrada debe partir desde una posición visible o razonablemente cercana al área visible.",
+                "- La animación de salida puede utilizar desplazamiento, pero nunca debe provocar problemas al siguiente evento.",
+                "- La alerta debe poder ejecutarse nuevamente sin necesidad de recargar el widget.",
+                "IMPORTANTE:",
+                "- No utilices display: none como único sistema de ocultación si eso impide realizar correctamente las animaciones.",
+                "- Prefiere sistemas como: opacity: 0; visibility: hidden; pointer-events: none; transform: scale(0.95); o una arquitectura equivalente.",
+                "- Cuando se active: opacity: 1; visibility: visible; pointer-events: auto; y ejecuta la animación correspondiente.",
+                ""
+            ] : []),
+            ...H("REQUISITOS DE CALIDAD PREMIUM (APLICAR SIEMPRE)"),
             "- CSS Variables para TODOS los colores de la paleta (--color-primary, --color-secondary, --color-accent).",
             "- Animaciones suaves con @keyframes y prefers-reduced-motion.",
-            "- Código limpio, comentado, sin dependencias externas salvo lo especificado en Framework.",
-            "- Accesibilidad: contrastes WCAG AA, focus-visible, aria-labels en botones/controles.",
+            "- Código limpio y comentado. " + frameworkRule,
+            "- Legibilidad: el texto debe verse bien sobre cualquier fondo de gameplay (usa sombras, contornos o fondos semitransparentes).",
             "- Responsive dentro del viewport 16:9 (escalado con transform: scale si OBS lo requiere).",
-            "- Sin errores de consola. Sin memory leaks. Event listeners limpiados en cleanup().",
+            "- Sin errores de consola. Sin memory leaks: limpia los timers y listeners que ya no se necesiten.",
+            "",
+            ...H("AL TERMINAR"),
+            "Después del código agrega una sección «CÓMO INSTALARLO» con 3 a 6 pasos numerados, pensados para un principiante, para la plataforma de destino indicada, y una línea explicando cómo probarlo.",
             "",
             "ENTREGA SIEMPRE CÓDIGO COMPLETO, FUNCIONAL, PROFESIONAL Y LISTO PARA UTILIZAR."
         ];
@@ -975,6 +1189,7 @@ Estos colores HEX exactos son obligatorios y deben respetarse en todo el código
             promptTextarea.value = fullPrompt;
             document.getElementById('charCount').textContent = fullPrompt.length.toLocaleString() + ' caracteres';
         }
+        saveSettings();
     }
 
     // ===== SELECT HANDLERS =====
@@ -996,31 +1211,51 @@ Estos colores HEX exactos son obligatorios y deben respetarse en todo el código
     }
 
     // ===== COPY / RESET =====
-    function copyPrompt() {
-        const promptTextarea = document.getElementById('promptResult');
-        promptTextarea.select();
+    let copyTimer = null;
 
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(promptTextarea.value).then(showCopySuccess);
-        } else {
-            document.execCommand('copy');
-            showCopySuccess();
+    function setCopyButton(label, ok) {
+        const copyBtnText = document.getElementById('copyBtnText');
+        const copyBtn = document.getElementById('copyBtn');
+        copyBtnText.textContent = label;
+        copyBtn.classList.toggle('from-purple-600', ok === null);
+        copyBtn.classList.toggle('to-indigo-600', ok === null);
+        copyBtn.classList.toggle('from-emerald-600', ok === true);
+        copyBtn.classList.toggle('to-teal-600', ok === true);
+        copyBtn.classList.toggle('from-amber-600', ok === false);
+        copyBtn.classList.toggle('to-orange-600', ok === false);
+        clearTimeout(copyTimer);
+        if (ok !== null) {
+            copyTimer = setTimeout(function () { setCopyButton('Copiar Prompt', null); }, ok ? 2000 : 3500);
         }
     }
 
-    function showCopySuccess() {
-        const copyBtnText = document.getElementById('copyBtnText');
-        const copyBtn = document.getElementById('copyBtn');
+    function showCopySuccess() { setCopyButton('¡Copiado!', true); }
+    function showCopyError() { setCopyButton('Selecciona y copia con Ctrl+C', false); }
 
-        copyBtnText.textContent = '¡Copiado!';
-        copyBtn.classList.remove('from-purple-600', 'to-indigo-600');
-        copyBtn.classList.add('from-emerald-600', 'to-teal-600');
+    function copyPrompt() {
+        const promptTextarea = document.getElementById('promptResult');
 
-        setTimeout(function() {
-            copyBtnText.textContent = 'Copiar Prompt';
-            copyBtn.classList.remove('from-emerald-600', 'to-teal-600');
-            copyBtn.classList.add('from-purple-600', 'to-indigo-600');
-        }, 2000);
+        const fallbackCopy = function () {
+            try {
+                promptTextarea.focus();
+                promptTextarea.select();
+                if (document.execCommand('copy')) showCopySuccess(); else showCopyError();
+            } catch (e) {
+                showCopyError();
+            }
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(promptTextarea.value).then(showCopySuccess).catch(fallbackCopy);
+        } else {
+            fallbackCopy();
+        }
+    }
+
+    // Copia el prompt y abre el asistente de IA elegido en otra pestaña
+    function copyAndOpen(url) {
+        copyPrompt();
+        window.open(url, '_blank', 'noopener,noreferrer');
     }
 
     function resetForm() {
@@ -1050,6 +1285,7 @@ Estos colores HEX exactos son obligatorios y deben respetarse en todo el código
         setPaletteMode('preset'); // re-render UI
 
         updatePrompt();
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
     }
 </script>
 </body>
